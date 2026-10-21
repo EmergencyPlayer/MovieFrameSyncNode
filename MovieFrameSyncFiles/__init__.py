@@ -14,6 +14,7 @@ from . import node
 classes = (
     node.ShaderNodeMovieFrameSync,
     node.MOVIEFRAMESYNC_OT_detect_fps,
+    node.MOVIEFRAMESYNC_OT_load_sequence,
 )
 
 def add_menu_entry(self, context):

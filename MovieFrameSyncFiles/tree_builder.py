@@ -1,5 +1,6 @@
 import bpy
 
+# Builds the node groups
 def build():
     tree = bpy.data.node_groups.new("RTMovie", "ShaderNodeTree")
 
@@ -9,10 +10,13 @@ def build():
 
     n_out = tree.nodes.new("NodeGroupOutput")
     coord = tree.nodes.new("ShaderNodeTexCoord")
+    coord.name = "Coord"
     tex   = tree.nodes.new("ShaderNodeTexImage")
     tex.name = "Tex"
     tex.image_user.frame_start = 1
-    tex.image_user.use_cyclic = True
+    tex.image_user.use_cyclic = False           # driver does the looping
+    tex.image_user.use_auto_refresh = True
+    tex.image_user.frame_duration = 100000
 
     tree.links.new(coord.outputs["UV"], tex.inputs["Vector"])
     tree.links.new(tex.outputs["Color"], n_out.inputs["Color"])
@@ -21,11 +25,13 @@ def build():
     tree["movie_fps"] = 60.0
     tree["speed"] = 1.0
     tree["start"] = 1
+    tree["length"] = 1
 
     _add_driver(tree)
     return tree
 
 
+# Adds driver to the frame offset
 def _add_driver(tree):
     fc = tree.driver_add('nodes["Tex"].image_user.frame_offset')
     d = fc.driver
@@ -41,12 +47,18 @@ def _add_driver(tree):
         t.data_path = path
 
     scene = bpy.context.scene
-    var("sfps",  'SCENE',    scene, "render.fps")
-    var("base",  'SCENE',    scene, "render.fps_base")
-    var("mfps",  'NODETREE', tree,  '["movie_fps"]')
-    var("speed", 'NODETREE', tree,  '["speed"]')
-    var("start", 'NODETREE', tree,  '["start"]')
-    d.expression = "floor(max(frame - start, 0) * speed * mfps * base / sfps) + 1 - frame"
+    var("sfps",   'SCENE',    scene, "render.fps")
+    var("base",   'SCENE',    scene, "render.fps_base")
+    var("mfps",   'NODETREE', tree,  '["movie_fps"]')
+    var("speed",  'NODETREE', tree,  '["speed"]')
+    var("start",  'NODETREE', tree,  '["start"]')
+    var("length", 'NODETREE', tree,  '["length"]')
+
+    # god i love modulo
+    d.expression = (
+        "(floor(max(frame - start, 0) * speed * mfps * base / sfps)"
+        " % max(length, 1)) + 1 - frame"
+    )
 
 
 def retarget_drivers(tree):
