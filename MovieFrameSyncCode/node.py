@@ -70,12 +70,18 @@ class ShaderNodeMovieFrameSync(bpy.types.ShaderNodeCustomGroup):
 
         layout.template_image(tex, "image", tex.image_user)
 
+        layout.separator()
         if img and img.source == 'MOVIE':
             op = layout.operator("realtime_movie.detect_fps", icon='FILE_MOVIE')
             op.node_name = self.name
         else:
             op = layout.operator("movieframesync.load_sequence", icon='FILE_IMAGE')
             op.tree_name = self.node_tree.name
+        label = "Sequence FPS" if (img and img.source == 'SEQUENCE') else "Source FPS"
+        layout.prop(self.node_tree, '["movie_fps"]', text=label)
+        layout.prop(self.node_tree, '["length"]', text="Length (frames)")
+        layout.prop(self.node_tree, '["speed"]', text="Speed")
+        layout.prop(self.node_tree, '["start"]', text="Start Frame")
 
         layout.separator()
         layout.prop(tex, "interpolation", text="")
@@ -83,13 +89,6 @@ class ShaderNodeMovieFrameSync(bpy.types.ShaderNodeCustomGroup):
         if tex.projection == 'BOX':
             layout.prop(tex, "projection_blend", text="Blend")
         layout.prop(tex, "extension", text="")
-
-        layout.separator()
-        label = "Sequence FPS" if (img and img.source == 'SEQUENCE') else "Source FPS"
-        layout.prop(self.node_tree, '["movie_fps"]', text=label)
-        layout.prop(self.node_tree, '["length"]', text="Length (frames)")
-        layout.prop(self.node_tree, '["speed"]', text="Speed")
-        layout.prop(self.node_tree, '["start"]', text="Start Frame")
 
 
 class MOVIEFRAMESYNC_OT_detect_fps(bpy.types.Operator):
