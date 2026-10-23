@@ -2,7 +2,7 @@
 Add-on for a node group that controls the framerate of videos and image sequences that are different to Blender Scene, allowing videos to run at realtime.
 
 # Video Demonstration
-(Coming soon)
+[(Animating Pixel Art in Blender | My FREE Blender Add-on)](https://youtu.be/wmRecNDJULc)
 
 # How to Use
 1. Download MovieFrameSyncNode.zip OR download the MovieFrameSyncCode Folder and zip it
